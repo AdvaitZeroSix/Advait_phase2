@@ -85,13 +85,12 @@ picoCTF{0000004d}
 
 ## Resources:
 
-- https://www.youtube.com/watch?v=gh2RXE9BIN8  
-- https://www.youtube.com/watch?v=1d-6Hv1c39c  
-- https://www.youtube.com/playlist?list=PLMB3ddm5Yvh3gf_iev78YP5EPzkA3nPdL  
+- https://www.youtube.com/watch?v=1d-6Hv1c39c   
 - https://www.google.com  
 
 ---
 
 ## Incorrect Tangents:
 
+- No incorrect tangents.
 
