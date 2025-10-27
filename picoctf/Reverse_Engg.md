@@ -1,3 +1,91 @@
+# 1.GDB baby step 1
+
+> Can you figure out what is in the eax register at the end of the main function?  
+> Put your answer in the picoCTF flag format: `picoCTF{n}` where `n` is the contents of the `eax` register in decimal.  
+> (If the answer was 0x11 your flag would be picoCTF{17}).  
+> *Disassemble this.*
+
+---
+
+## Solution:
+
+- I was given a binary file named `debugger0_a`. The challenge asked to find the value stored in the **eax register** at the end of the main function.  
+- To start, I opened the terminal in Ubuntu and disassembled the binary using the following command:
+
+  ```
+  objdump -d -Mintel debugger0_a
+  ```
+
+- The output displayed the assembly instructions of the program. The most important part was the **main** function, which looked like this:
+
+  ```
+  0000000000001129 <main>:
+      1129: f3 0f 1e fa             endbr64
+      112d: 55                      push   rbp
+      112e: 48 89 e5                mov    rbp,rsp
+      1131: 89 7d fc                mov    DWORD PTR [rbp-0x4],edi
+      1134: 48 89 75 f0             mov    QWORD PTR [rbp-0x10],rsi
+      1138: b8 42 63 08 00          mov    eax,0x86342
+      113d: 5d                      pop    rbp
+      113e: c3                      ret
+      113f: 90                      nop
+  ```
+
+
+- `push rbp` and `mov rbp, rsp` are standard prologue instructions that set up the stack frame.  
+- The next two `mov` instructions store the function’s parameters (`edi` and `rsi`) into local stack variables — nothing tricky here.  
+- Then comes the key line:  
+ ```
+  mov eax, 0x86342
+  ```
+  This instruction directly loads the **hexadecimal value 0x86342** into the `eax` register.  
+ - After that, `pop rbp` and `ret` clean up the stack and return from the function.
+
+- Since the `mov` instruction explicitly sets `eax` to **0x86342** and nothing changes it afterward, the final value of `eax` at the end of `main` is **0x86342**.
+
+- Converting this hexadecimal value to decimal:
+  ```
+  0x86342 = 549698
+  ```
+
+- Therefore, the final flag in the required format is:
+
+---
+
+## Flag:
+
+```
+picoCTF{549698}
+```
+
+---
+
+## Concepts learnt:
+
+- How to use **objdump** to disassemble a binary and read assembly instructions in Intel syntax.  
+- How to identify the **main function** and follow register assignments step by step.  
+- On the x86 architecture, the return value of a function is stored in the **eax register** — so analyzing its final value directly gives the answer.  
+- Quick conversion between hexadecimal and decimal for CTF flags.
+
+---
+
+## Notes:
+
+- Most of the basic assembly language codes can be predicted just by reading the code instead of actaually needing to run the file
+
+---
+
+## Resources:
+
+- `objdump` manual (for `-d -Mintel` disassembly).  
+- GDB commands reference.  
+- Basic x86 assembly guides to understand function prologues and epilogues.
+
+---
+
+## Incorrect Tangents:
+
+- Initially thought I might need to run the binary and observe behavior dynamically, but the constant `mov eax, 0x86342` made it clear that static analysis was enough.
 # 2. ARMssembly 1
 
 > For what argument does this program print `win` with variables 58, 2 and 3?  
