@@ -73,8 +73,7 @@ picoCTF{549698}
 
 ## Resources:
 
-- `objdump` manual (for `-d -Mintel` disassembly).  
-- GDB commands reference.  
+- `objdump` manual (for `-d -Mintel` disassembly). 
 - Basic x86 assembly guides to understand function prologues and epilogues.
 
 ---
