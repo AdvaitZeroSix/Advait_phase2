@@ -30,16 +30,12 @@
       113e: c3                      ret
       113f: 90                      nop
   ```
-
-
-- `push rbp` and `mov rbp, rsp` are standard prologue instructions that set up the stack frame.  
-- The next two `mov` instructions store the function’s parameters (`edi` and `rsi`) into local stack variables — nothing tricky here.  
-- Then comes the key line:  
+  
+- We focus on the key line:  
  ```
   mov eax, 0x86342
   ```
   This instruction directly loads the **hexadecimal value 0x86342** into the `eax` register.  
- - After that, `pop rbp` and `ret` clean up the stack and return from the function.
 
 - Since the `mov` instruction explicitly sets `eax` to **0x86342** and nothing changes it afterward, the final value of `eax` at the end of `main` is **0x86342**.
 
