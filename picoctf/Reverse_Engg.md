@@ -177,3 +177,79 @@ picoCTF{0000004d}
 
 - No incorrect tangents.
 
+# 3.Vault Door 3
+
+> This vault uses for-loops and byte arrays. The source code for this vault is here: `VaultDoor3.java`
+
+---
+
+## Solution:
+
+- I opened the provided `VaultDoor3.java` file to see how the password check worked. The code already included a jumbled string returned when the check passed:
+```
+return s.equals("jU5t_a_sna_3lpm12g94c_u_4_m7ra41")
+```
+- To recover the real flag, I read the `isPasswordCorrect` logic which rearranges characters from the input `password` into a `buffer` using several loops. I added comments and followed the transformations step-by-step.
+
+Key parts of the code (simplified and annotated):
+```java
+if (password.length() != 32) {
+    return false;
+}
+char[] buffer = new char[32];
+int i;
+// First 8 characters stay the same
+for (i=0; i<8; i++) {
+    buffer[i] = password.charAt(i);
+}
+// Next 8 characters are reversed (indices 8..15 come from password[15..8])
+for (; i<16; i++) {
+    buffer[i] = password.charAt(23-i);
+}
+// Even indices from 16 to 31 are taken from password[46-i]
+for (; i<32; i+=2) {
+    buffer[i] = password.charAt(46-i);
+}
+// Odd indices from 31 down to 17 stay the same from the password
+for (i=31; i>=17; i-=2) {
+    buffer[i] = password.charAt(i);
+}
+```
+- I followed each loop's mapping to reconstruct what `password` must be so that `new String(buffer)` equals the jumbled string in the return statement. Translating the loops into positions and applying them to the jumbled string produced the correct input password (the real flag).
+
+- After applying the index transformations and rebuilding the original password, I obtained the flag string.
+
+---
+
+## Flag:
+
+```
+picoCTF{jU5t_a_s1mpl3_an4gr4m_4_u_c7a291}
+```
+
+---
+
+## Concepts learnt:
+
+- How simple character-index rearrangements (for-loops and array indexing) can encode or obfuscate strings.  
+- The method of reversing engineering a deterministic transform: read the transform, invert it (or apply the mapping to the known output) and reconstruct the original input.  
+- Carefully tracking index math is crucial — off-by-one mistakes easily break the reconstruction.
+
+---
+
+## Notes:
+
+- When a program gives you a transformed string and shows how it was generated, treat the transformation as a mapping from input indices to output indices and invert that mapping.  
+- Adding comments to each loop and writing down the index mappings makes the process much faster and less error-prone.
+
+---
+
+## Resources:
+
+- No external resources were needed — the Java source contained all the information required.
+
+---
+
+## Incorrect Tangents:
+
+- None — the source was straightforward once the index mappings were followed.
