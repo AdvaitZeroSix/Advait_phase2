@@ -1,3 +1,67 @@
+# 1.Buffer Overflow 0
+
+> Let's start off simple, can you overflow the correct buffer? The program is available here. You can view source here.
+> Additional details will be available after launching your challenge instance.
+
+---
+
+## Solution:
+
+- I read the challenge hints provided:
+  1) How can you trigger the flag to print?  
+  2) If you try to do the math by hand, maybe try and add a few more characters. Sometimes there are things you aren't expecting.  
+  3) Run `man gets` and read the BUGS section. How many characters can the program really read?
+
+- I inspected the given `vuln.c` source. The program uses `gets()` (an unsafe function) to read input into a fixed-size buffer. The BUGS section of `man gets` explicitly warns that `gets()` does not do bounds checking and can read arbitrarily many characters, making it vulnerable to buffer overflow.
+
+- I launched the challenge instance and connected to it with netcat:
+  ```
+  nc saturn.picoctf.net 58367
+  ```
+
+- After connecting, the service prompted for input. Knowing the task was to overflow the correct buffer, I sent an oversized input (a long string of characters). For this challenge a single long payload was sufficient; for example:
+  ```
+  input:hdbfjsdbfjbdsjfbdsjfbadlsfbdjsbfdasbfladsbkfhjabsdkfhbkashjbfkahbsdkfjhbaksdhfbakshdbfjkadhsbfjhadsbfkhdsbfkahdsbkfhabdskfhjbadskhfbkadsjhbfkadhjsbfkjadhsbfadhjsbfkdhjsbfkadhjsbfkhadsbfkhadsbfkhjadsbfjkhdsbfkjhdsbfkjhdsabfkjhabds
+  ```
+
+- Submitting this long input triggered the program’s vulnerable behavior and caused it to print the flag.
+
+---
+
+## Flag:
+
+```
+picoCTF{ov3rfl0ws_ar3nt_that_bad_9f2364bc}
+```
+
+---
+
+## Concepts learnt:
+
+- `gets()` is inherently unsafe because it performs no bounds checking and can read arbitrarily many characters into a fixed-size buffer. The `man gets` BUGS section warns against its use.  
+- Buffer overflows can be exploited simply by supplying more input than a buffer can hold; sometimes the intended challenge is just recognizing `gets()` and overflowing the buffer rather than performing advanced return-oriented programming.  
+- When a service asks for input over the network, reproduce the behavior locally or connect with `nc` to test payloads interactively.
+
+---
+
+## Notes:
+
+- Always check source code for unsafe input functions
+- If you need to determine exact overflow lengths, iterative fuzzing with increasing payload sizes helps
+
+---
+
+## Resources:
+
+- `man gets` (see BUGS section)  
+
+---
+
+## Incorrect Tangents:
+
+- No alternate tangents
+
+
 # 2.Format String 0
 
 > Can you help the picky customers find their favorite burger?  
