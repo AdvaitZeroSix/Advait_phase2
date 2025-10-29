@@ -89,8 +89,9 @@ picoCTF{h1dd3n_1n_pLa1n_51GHT_18375919}
   - At a height of **830 pixels**, the image rendered correctly and revealed the hidden flag printed inside the image.
 
 - **Flag:**  
-  -picoCTF{qu1t3_a_v13w_2020}
-
+```
+  picoCTF{qu1t3_a_v13w_2020}
+```
 ---
 
 ## Concepts learnt:
