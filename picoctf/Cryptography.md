@@ -13,6 +13,8 @@
 - While reading about RSA, I found that the **public exponent (e)** value in this challenge was very small compared to normal RSA configurations (commonly `e = 65537`).  
 - I suspected that this weakness might make it easier to decrypt directly.  
 - I then found an online RSA decryption tool where I could enter **N**, **C**, and **e**.  
+<img width="1220" height="378" alt="image" src="https://github.com/user-attachments/assets/151cd381-8cda-4f06-bf35-c168fa32697a" />
+
 - Using [dcode.fr’s RSA Cipher Tool](https://www.dcode.fr/rsa-cipher), I input these values and successfully obtained the flag.
 
 ---
