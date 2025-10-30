@@ -1,3 +1,75 @@
+# 1.Web Gauntlet
+
+> Can you beat the filters?
+
+---
+
+## Solution:
+
+- The challenge provided two URLs: one with a login form (username/password) and another showing the active input **filter** (the list of banned/filtered strings). Hints included: valid credentials aren't allowed, record injections, inspect raw hex in responses, backend is SQLite, and use a private browser window if cookies reset.
+
+- Visiting the login page and the filter page, the application echoed back the constructed query, for example:
+  ```
+  SELECT * FROM users WHERE username='aaa' AND password='aaa'
+  ```
+  This confirmed direct interpolation of user input into an SQL query — a clear SQL injection surface.
+
+- I started with simple attempts like `admin admin` and `admin xyz`, but the query required both username **AND** password, so those failed. To bypass the `AND` requirement I tried to comment out the remainder of the query with payloads such as:
+  ```
+  admin'/*
+  ```
+  which worked in early rounds by making the server evaluate only `WHERE username='admin'` before the comment.
+
+- As the filters tightened, `admin` became banned. I then tried function-based encodings like `char(97)` which did **not** work in this environment. Next I attempted concatenation to spell the banned username without using the literal:
+  ```
+  admi'||'n'/*
+  ```
+  This payload breaks `admin` into two pieces and concatenates them with SQLite's `||`, yielding `admi` || 'n' which equals `admin` without containing the forbidden substring. The trailing `/*` comments out the rest of the query. This technique bypassed the substring filter and worked in later rounds.
+
+- In the final round the `UNION` keyword was blocked, but my successful payload did not use `UNION` so it was unaffected. Using the concatenation/comment approach ultimately allowed the server to match the intended user and return the flag.
+
+---
+
+## Flag:
+
+```
+picoCTF{y0u_m4d3_1t_79a0ddc6}
+```
+
+---
+
+## Concepts learnt:
+
+- Filters that block substrings can often be bypassed by expressing the same value differently (concatenation, splitting, function calls).  
+- SQLite uses `||` for string concatenation, which is useful to reconstruct banned words without writing them literally.  
+
+---
+
+## Notes:
+
+- Keep a log of every injection you try (the challenge hinted to do this).
+- Start with simple comment-based truncation (`'/*`, `-- `) to remove the `AND password=...` requirement, then move to obfuscation techniques when banned words appear.  
+- Example payloads to try when substrings are blocked:
+  ```
+  admin'/*
+  'ad' || 'min' --
+  admi'||'n'/*
+  ```
+
+---
+
+## Resources:
+
+- SQLite documentation (string concatenation `||`).  
+- SQL injection cheat sheets and filter-bypass writeups.
+
+---
+
+## Incorrect Tangents:
+
+- Trying to brute-force valid credentials — the challenge explicitly disallows logging in with legitimate credentials and the SQL echo indicated injection was required.  
+- Trying to rely on `char()` function if it's not supported by the backend — function availability varies by environment, so test it first.
+
 # 2.SSTI1
 
 > I made a cool website where you can announce whatever you want! Try it out!  
