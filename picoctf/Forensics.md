@@ -6,7 +6,9 @@
 
 ## Solution:
 
-- I downloaded the provided `pcapng` file and opened it in **Wireshark** to inspect the traffic. Early in the capture, I noticed files related to the transfer: `instructions`, `plan`, and three image files (`picture1.bmp`, `picture2.bmp`, `picture3.bmp`).  
+- I downloaded the provided `pcapng` file and opened it in **Wireshark** to inspect the traffic. Early in the capture, I noticed files related to the transfer: `instructions`, `plan`, and three image files (`picture1.bmp`, `picture2.bmp`, `picture3.bmp`).
+  <img width="936" height="303" alt="image" src="https://github.com/user-attachments/assets/195357c9-64ee-4036-92ae-2cd6751ce7fc" />
+ 
 - I exported the transferred objects using **File → Export Objects → TFTP** in Wireshark and saved the files locally.  
 - The `instructions` and `plan` files contained readable text that looked encoded. I ran these through a ROT13 checker and decoded them. The decoded messages said:
 
@@ -76,6 +78,7 @@ picoCTF{h1dd3n_1n_pLa1n_51GHT_18375919}
   - I checked the file metadata with `exiftool` and confirmed it's a BMP image (1134×306, 24-bit).  
   - I inspected the file with `binwalk` which found some odd signatures but no obvious embedded files to extract.  
   - I opened the file in a hex editor (hexed.it) and verified the BMP header and raw bytes — there were no obvious appended files or magic headers for embedded archives.
+<img width="1139" height="303" alt="image" src="https://github.com/user-attachments/assets/b00f32f4-68e8-4d46-8fc6-a419378547a5" />
 
 - **Approaches tried (in order):**
   1. **Data appending / file structure exploits** — checked for appended archives or extra magic but nothing useful was found.  
@@ -87,6 +90,7 @@ picoCTF{h1dd3n_1n_pLa1n_51GHT_18375919}
   - Changing the **width** field repeatedly corrupted the file, so I switched to experimenting with the **height** field.  
   - I iteratively modified the BMP height value and opened the image each time to see how it rendered. I tried values like `400, 450, 500, ...` and found corruption starting around `850` pixels. I then tested heights starting from `810` upward.  
   - At a height of **830 pixels**, the image rendered correctly and revealed the hidden flag printed inside the image.
+<img width="915" height="666" alt="image" src="https://github.com/user-attachments/assets/22428b10-ab87-4832-a293-8d45bf495998" />
 
 - **Flag:**  
 ```
@@ -137,6 +141,8 @@ picoCTF{h1dd3n_1n_pLa1n_51GHT_18375919}
   - Researching the technology used during the Apollo missions revealed that video transmissions from the moon used **SSTV (Slow-Scan Television)** — a method of encoding images as audio tones.
   - I searched online for **SSTV decoding tools** and learned about how SSTV transmits image data through audio frequencies.
   - I uploaded the provided audio file to an online SSTV decoder.
+  <img width="740" height="592" alt="image" src="https://github.com/user-attachments/assets/3a9c2912-ad27-40c8-86c6-e3c9259e3a80" />
+
   - The decoded output revealed an **image file** containing the flag.
   
 - **Flag:**  
