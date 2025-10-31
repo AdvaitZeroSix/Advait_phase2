@@ -165,3 +165,52 @@ picoCTF{7h3_cu570m3r_15_n3v3r_SEGFAULT_dc0f36c4}
 - I initially thought maybe the first burger name was random text and didn’t notice the `%114d` significance.  
 - I also briefly tried “safe” inputs, but the challenge required triggering risky behavior (buffer overflow and segfault).
 
+# 3.Clutter Overflow
+
+> Clutter, clutter everywhere and not a byte to use. `nc mars.picoctf.net 31890`
+
+---
+
+## Solution:
+
+- The challenge provided a remote service (`nc mars.picoctf.net 31890`) and a C source file. I downloaded and read the C source to understand the expected input and behavior.  
+- The source used `gets()` to read input into a buffer named `clutter`, which is a classic insecure function and a strong indicator of a buffer overflow challenge. The program printed an error saying that `code` should equal `0xdeadbeef`, so the goal was to overwrite the `code` variable with that value.  
+- I ran the program locally (and/or connected to the remote service) to observe behavior and to craft an exploit payload. To overflow `code`, I needed to determine the exact number of bytes from the start of `clutter` to the `code` variable on the stack. The `clutter` buffer size in the source was 256 bytes.  
+- I first sent 256 garbage characters followed by a marker (`a` `z`) to see if it would overwrite `code`. That did not produce an overflow, so I incremented the payload length in steps (I increased by 4 bytes each time) until I observed overwriting behavior. The buffer began overflowing at **264** bytes.  
+- With the correct offset known, I needed to write the 32-bit value `0xdeadbeef` into `code`. Because it uses little-endian, I supplied the bytes in little-endian order: `\xef\xbe\xad\de`.  
+
+
+---
+
+## Flag:
+
+picoCTF{c0ntr0ll3d_clutt3r_1n_my_buff3r}
+
+---
+
+## Concepts learnt:
+
+- `gets()` is unsafe.  
+- Determining the correct overflow offset can be done iteratively (increase payload size until overwrite occurs).
+- Endianness matters: to set a 32-bit value in memory to `0xdeadbeef` on a little-endian system you must send the bytes in reverse order: `\xef\xbe\xad\xde`.  
+- Some shells/tools require escape interpretation (`echo -e`) to send non-printable bytes over netcat.
+
+---
+
+## Notes:
+
+-An other way could be to use program scripts to overflow the clutter variable automatically and place the value deadbeef into code
+-I did not understand why I got no output when I entered the string directly and why it only worked when I used echo -e
+
+---
+
+## Resources:
+
+- `man gets` 
+-  little endian converter
+
+---
+
+## Incorrect Tangents:
+
+- Attempting to provide printable ASCII for the `0xdeadbeef` value instead of raw bytes — endianness and raw byte injection are required for this task.  
