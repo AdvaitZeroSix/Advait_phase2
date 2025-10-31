@@ -57,7 +57,6 @@ print(dynamic_xor_encrypt(decipher,"aedurtu"))
 
 in dynamic_xor_encrypt i first entered picoCTF{ then it gave me the recurring jumbled "aedurtu"
 then i used that to get the final flag
-the final flag was picoCTF{custom_d2cr0pt6d_49fbee5b}
 
 ---
 
