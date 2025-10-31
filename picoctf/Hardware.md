@@ -111,3 +111,84 @@ FCSC{b1dee4eeadf6c4e60aeb142b0b486344e64b12b40d1046de95c89ba5e23a9925}
 
 - Initially tried using the raw exported binary without analysis — it was unreadable. The correct approach was to apply an **ASCII protocol analyzer** to interpret the binary stream.  
 
+# 3.Bare Metal Alchemist
+
+> my friend recommended me this anime but i think i've heard a wrong name.
+
+---
+
+## Solution:
+
+- The attached file was an ELF binary (`firmware.elf`). I first tried to execute it directly:
+  ```
+  ./firmware.elf
+  ./firmware.elf: cannot execute binary file: Exec format error
+  ```
+  That error suggested the binary was built for a different architecture or OS.
+- I ran `objdump -d firmware.elf` to inspect it, but `objdump` couldn't disassemble it and reported an unknown architecture:
+  ```
+  firmware.elf:     file format elf32-little
+  objdump: can't disassemble for architecture UNKNOWN!
+  ```
+- I searched for a way to detect the correct architecture. The file metadata showed:
+  ```
+  Class: ELF32
+  Machine: Atmel AVR 8-bit microcontroller
+  ```
+  So this was AVR firmware (not a standard x86/x86_64 Linux binary).
+- I tried `avr-objdump -d firmware.elf` and experimented with tools like Ghidra, but they either failed or required more setup than I wanted to do at the time. Instead of digging deeper into AVR reverse-engineering, I tried a simpler brute-force approach on the file contents.
+- I wrote a small Python script that XOR'd every byte of the file with every possible 1-byte key (1..255), then searched the decoded output for a flag-like pattern (`CTF{...}`). The script looked like this:
+  ```python
+  import re
+
+  FILENAME = "firmware.elf"
+
+  with open(FILENAME, "rb") as f:
+      data = f.read()
+
+  for key in range(1, 256):
+      decoded = bytes([b ^ key for b in data])
+      m = re.search(rb'CTF\{[^}]{1,200}\}', decoded)
+      if m:
+          print("Found flag with key 0x{:02x}:".format(key))
+          print(m.group(0).decode())
+          break
+  else:
+      print("No flag found with single-byte XOR.")
+  ```
+- Running this script revealed the flag in the decoded output after trying the correct single-byte XOR key.
+
+---
+
+## Flag:
+
+```
+CTF{Th1s_1s_som3_s1mpl3_4rdu1no_f1rmw4re}
+```
+
+---
+
+## Concepts learnt:
+ 
+- When reverse-engineering firmware, sometimes simple heuristic brute-force (single-byte XOR) can quickly reveal readable strings if the file was lightly obfuscated.
+
+---
+
+## Notes:
+
+- If you want to do deeper firmware analysis later, set up Ghidra or radare2 with AVR support and use `avr-objdump` to get instruction listings.  
+- The XOR brute-force was a quick pragmatic approach — it worked here because the flag was present in the file after a fixed single-byte XOR transformation.
+
+---
+
+## Resources:
+
+- `file`, `objdump`, and `avr-objdump` for architecture detection and disassembly.   
+- Python `re` for searching decoded outputs.
+
+---
+
+## Incorrect Tangents:
+
+- Trying to run the ELF as a native Linux binary — that produces `Exec format error` when architectures differ.  
+- Spending a long time configuring Ghidra/R2 before trying quick heuristics; simple tests can pay off early.
