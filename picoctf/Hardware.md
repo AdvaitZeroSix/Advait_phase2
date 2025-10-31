@@ -1,3 +1,63 @@
+# 1.IQ Test
+
+> Let your input x = 30478191278.  
+> Wrap your answer with `nite{ }` for the flag.  
+> Example: if x = 34359738368 gives (y0, ..., y11) = 010000000011, the flag would be `nite{010000000011}`.
+
+---
+
+## Solution:
+
+- The challenge provided an integer input `x = 30478191278` and hinted at logic operations producing a 12-bit output `(y0, ..., y11)` that forms the flag.  
+- Downloading the provided files revealed that the challenge involved **logic gate simulations** — inputs processed through multiple Boolean operations.  
+- Because the logic gates only handle **binary inputs**, I first converted `x` to its **36-bit binary** form.  
+- Adding a leading 0 (for alignment with 36 expected values) produced the following 36-bit representation:
+  ```
+  011100011000101001000100101010101110
+  ```
+- I then manually solved each logic gate as described in the challenge files, propagating the 1s and 0s through the logic circuit.  
+- After completing all the logic gate computations, the resulting binary sequence for `(y0, ..., y11)` was:
+  ```
+  100010011000
+  ```
+- Wrapping that output in the required flag format gives the final answer.
+
+---
+
+## Flag:
+
+```
+nite{100010011000}
+```
+
+---
+
+## Concepts learnt:
+
+- Converting decimal numbers to fixed-width binary (here, 36 bits) to match expected input size for logic circuits.  
+- Understanding and manually simulating **logic gates** (AND, OR, XOR, NOT) to derive output bits.  
+- How binary sequences can encode challenge results or flags directly in logic-based puzzles.  
+
+---
+
+## Notes:
+
+- Always confirm bit length when converting numbers for logic or hardware challenges — missing a bit can shift all gate results.  
+- Writing down intermediate outputs after each logic stage helps catch propagation mistakes early.  
+- Logic-based challenges often have small outputs (e.g., 8–12 bits) that translate directly to a flag format.  
+
+---
+
+## Resources:
+
+- Online binary converters.  
+
+---
+
+## Incorrect Tangents:
+
+- No incorrect tangents
+
 # 2.I like Logic
 
 > I like logic and I like files, apparently, they have something in common. What should my next step be?
