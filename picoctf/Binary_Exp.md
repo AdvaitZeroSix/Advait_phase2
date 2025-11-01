@@ -199,8 +199,8 @@ picoCTF{c0ntr0ll3d_clutt3r_1n_my_buff3r}
 
 ## Notes:
 
--An other way could be to use program scripts to overflow the clutter variable automatically and place the value deadbeef into code
--I did not understand why I got no output when I entered the string directly and why it only worked when I used echo -e
+- An other way could be to use program scripts to overflow the clutter variable automatically and place the value deadbeef into code
+- I did not understand why I got no output when I entered the string directly and why it only worked when I used echo -e
 
 ---
 
